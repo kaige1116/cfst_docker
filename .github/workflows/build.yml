@@ -1,10 +1,3 @@
-name: Build and Push Multi-Arch Docker Image
-
-on:
-  push:
-    branches:
-      - main
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -29,6 +22,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set image tag with date
+        id: set_tag
+        run: echo "tag=$(date +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+
       - name: Build and push Docker image (amd64 & arm64)
         uses: docker/build-push-action@v5
         with:
@@ -36,18 +33,5 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/cfst:latest
-          build-args: |
-            TARGETARCH=amd64
-
-      # 可选：推送带有 git sha 的标签
-      - name: Build and push Docker image with git sha tag
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository_owner }}/cfst:${{ github.sha }}
-          build-args: |
-            TARGETARCH=amd64
+            ghcr.io/${{ github.repository_owner }}/cfst_docker:latest
+            ghcr.io/${{ github.repository_owner }}/cfst_docker:${{ steps.set_tag.outputs.tag }}
