@@ -1,0 +1,82 @@
+name: 自动更新CloudflareSpeedTest工具包
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-and-organize:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch:
+          - amd64
+          - arm64
+    env:
+      REPO: XIU2/CloudflareSpeedTest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Get latest release info
+        id: get_latest
+        run: |
+          RELEASE_DATA=$(curl -s "https://api.github.com/repos/${{ env.REPO }}/releases/latest")
+          LATEST_VERSION=$(echo "$RELEASE_DATA" | jq -r '.tag_name')
+          if [ "${{ matrix.arch }}" = "amd64" ]; then
+            FILE_NAME="cfst_linux_amd64.tar.gz"
+          else
+            FILE_NAME="cfst_linux_arm64.tar.gz"
+          fi
+          DOWNLOAD_URL=$(echo "$RELEASE_DATA" | jq -r ".assets[] | select(.name == \"$FILE_NAME\") | .browser_download_url")
+          echo "latest_version=$LATEST_VERSION" >> $GITHUB_OUTPUT
+          echo "download_url=$DOWNLOAD_URL" >> $GITHUB_OUTPUT
+          echo "file_name=$FILE_NAME" >> $GITHUB_OUTPUT
+
+      - name: Check update necessity
+        id: check_update
+        run: |
+          TARGET_DIR="cfst_linux_${{ matrix.arch }}"
+          CURRENT_VERSION=$(cat "${TARGET_DIR}/VERSION" 2>/dev/null || echo "none")
+          echo "本地当前版本：$CURRENT_VERSION"
+          echo "远程最新版本：${{ steps.get_latest.outputs.latest_version }}"
+          if [ "$CURRENT_VERSION" != "${{ steps.get_latest.outputs.latest_version }}" ]; then
+            echo "update_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "update_needed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Download and process latest release
+        if: steps.check_update.outputs.update_needed == 'true'
+        run: |
+          ARCH="${{ matrix.arch }}"
+          TARGET_DIR="cfst_linux_${ARCH}"
+
+          echo "📥 下载最新${ARCH}压缩包..."
+          wget -q -O cfst_temp.tar.gz "${{ steps.get_latest.outputs.download_url }}"
+          if ! file cfst_temp.tar.gz | grep -q "gzip compressed"; then
+            echo "❌ 错误：下载的文件不是有效的 gzip 压缩包！"
+            exit 1
+          fi
+          mkdir -p "$TARGET_DIR"
+          mkdir -p cfst_unpack_temp
+          tar -zxvf cfst_temp.tar.gz -C cfst_unpack_temp
+          find cfst_unpack_temp -mindepth 1 -exec mv {} "$TARGET_DIR/" \;
+          chmod +x "$TARGET_DIR"/cfst* 2>/dev/null
+          rm -rf cfst_temp.tar.gz cfst_unpack_temp
+          echo "${{ steps.get_latest.outputs.latest_version }}" > "$TARGET_DIR/VERSION"
+          echo "✅ 已将文件部署到 $TARGET_DIR，版本更新为 ${{ steps.get_latest.outputs.latest_version }}"
+
+      - name: Commit and push changes
+        if: steps.check_update.outputs.update_needed == 'true'
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add ./cfst_linux_${{ matrix.arch }}
+          git commit -m "Update CloudflareSpeedTest (${{ matrix.arch }}) to ${{ steps.get_latest.outputs.latest_version }}"
+          git push origin main
+          echo "✅ 已推送${{ matrix.arch }}更新到仓库"

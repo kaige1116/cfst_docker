@@ -1,0 +1,22 @@
+version: '3'
+
+services:
+  cfst:
+    image: ghcr.io/[你的GitHub用户名]/cloudflare-speedtest:latest
+    restart: always
+    environment:
+      # Cloudflare API 配置
+      - CF_API_TOKEN=your_cloudflare_api_token
+      - CF_ZONE_ID=your_cloudflare_zone_id
+      - CF_DOMAIN=your_domain.com
+      
+      # 测速配置
+      - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200
+      - IP_COUNT=6  # 保留的IP数量
+      
+      # 定时任务配置 (默认7天)
+      - UPDATE_INTERVAL=7d
+    volumes:
+      - ./logs:/var/log
+      - ./results:/app/results
+    platform: linux/amd64  # 针对x86平台
