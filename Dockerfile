@@ -22,7 +22,5 @@ COPY update_dns.sh /app/
 COPY start.sh /app/  # 新增启动脚本
 RUN chmod +x /app/cfst /app/cfst_hosts.sh /app/update_dns.sh /app/start.sh  # 授权启动脚本
 
-# 移除原有的 cron 硬编码配置，改为由启动脚本生成
-
 # 入口命令改为执行启动脚本
 CMD ["/app/start.sh"]
