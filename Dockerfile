@@ -19,7 +19,7 @@ COPY cfst_linux_${TARGETARCH}/ /app/
 
 # 添加自动更新脚本和启动脚本
 COPY update_dns.sh /app/
-COPY start.sh /app/  # 新增启动脚本
+COPY start.sh /app/
 RUN chmod +x /app/cfst /app/cfst_hosts.sh /app/update_dns.sh /app/start.sh  # 授权启动脚本
 
 # 入口命令改为执行启动脚本
