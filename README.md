@@ -33,14 +33,30 @@ cd cfst_docker
 编辑 `docker-compose.yml` 文件，替换以下参数：
 
 ```yaml
-environment:
+
+services:
+  cfst:
+    image: ghcr.io/kaige1116/cfst_docker:latest
+    restart: always
+    environment:
+      - CF_API_TOKEN=your_cloudflare_api_token
+      - CF_ZONE_ID=your_cloudflare_zone_id
+      - CF_DOMAIN=your_domain.com
+      - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200
+      - IP_COUNT=6
+      - UPDATE_INTERVAL=6h
+    volumes:
+      - ./logs:/var/log
+      - ./results:/app/results
+```
+
+##配置文件说明：
   - CF_API_TOKEN=your_cloudflare_api_token  # 你的Cloudflare API令牌
   - CF_ZONE_ID=your_cloudflare_zone_id      # 你的域名Zone ID
   - CF_DOMAIN=your_domain.com               # 你的域名
   - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200  # 测速参数（ip.txt可改为ipv6.txt启用IPv6测速）
   - IP_COUNT=6                               # 保留的最优IP数量
   - UPDATE_INTERVAL=6h                       # 更新间隔（支持d天/h小时，如7d、12h）
-```
 
 ### 3. 启动服务
 
