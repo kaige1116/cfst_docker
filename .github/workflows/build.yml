@@ -29,6 +29,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set image tag with datetime
+        id: tag
+        run: echo "IMAGE_TAG=$(date +'%Y%m%d-%H%M')" >> $GITHUB_ENV
+
       - name: Build and push Docker image (amd64 & arm64)
         uses: docker/build-push-action@v5
         with:
@@ -37,4 +41,4 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository_owner }}/cfst_docker:latest
-            ghcr.io/${{ github.repository_owner }}/cfst_docker:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/cfst_docker:${{ env.IMAGE_TAG }}
