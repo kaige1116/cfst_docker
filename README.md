@@ -50,7 +50,7 @@ services:
       - ./results:/app/results
 ```
 
-##配置文件说明：
+## 配置文件说明：
   - CF_API_TOKEN=your_cloudflare_api_token  # 你的Cloudflare API令牌
   - CF_ZONE_ID=your_cloudflare_zone_id      # 你的域名Zone ID
   - CF_DOMAIN=your_domain.com               # 你的域名
