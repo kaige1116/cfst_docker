@@ -22,5 +22,9 @@ COPY update_dns.sh /app/
 COPY start.sh /app/
 RUN chmod +x /app/cfst /app/cfst_hosts.sh /app/update_dns.sh /app/start.sh  # 授权启动脚本
 
+# 添加健康检查：每5分钟检查一次 crond 进程是否运行
+HEALTHCHECK --interval=5m --timeout=3s \
+  CMD pgrep crond >/dev/null || exit 1
+
 # 入口命令改为执行启动脚本
 CMD ["/app/start.sh"]
