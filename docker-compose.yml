@@ -2,7 +2,7 @@ version: '3'
 
 services:
   cfst:
-    image: ghcr.io/[你的GitHub用户名]/cloudflare-speedtest:latest
+    image: ghcr.io/[你的GitHub用户名]/cfst_docker:latest
     restart: always
     environment:
       # Cloudflare API 配置
@@ -11,11 +11,11 @@ services:
       - CF_DOMAIN=your_domain.com
       
       # 测速配置
-      - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200
+      - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200 #ip.txt可更换为ipv6.txt,端口443
       - IP_COUNT=6  # 保留的IP数量
       
-      # 定时任务配置 (默认7天)
-      - UPDATE_INTERVAL=7d
+      # 定时任务配置 (时间表示d/h)
+      - UPDATE_INTERVAL=6h
     volumes:
       - ./logs:/var/log
       - ./results:/app/results
