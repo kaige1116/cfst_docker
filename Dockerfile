@@ -9,6 +9,7 @@ WORKDIR /app
 
 # 安装必要依赖
 RUN apk add --no-cache bash curl jq
+RUN apk add --no-cache bash curl jq dcron  # 添加 dcron（Alpine 常用的 cron 实现）
 
 # 初始化日志目录
 RUN mkdir -p /var/log
