@@ -13,8 +13,6 @@ mkdir -p "$RESULTS_PATH" || { echo "[$(date '+%Y-%m-%d %H:%M:%S')] 错误：无�
 log() {
   local msg="[$(date '+%Y-%m-%d %H:%M:%S')] $1"
   echo "$msg"
-  # 日志写入失败时仅输出错误到stderr，不终止脚本
-  echo "$msg" >> "$LOG_PATH" 2>/dev/null || echo "$msg (警告：日志写入失败)" >&2
 }
 
 # 检查依赖工具是否存在
