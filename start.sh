@@ -16,25 +16,25 @@ interval_to_cron() {
   local num=${interval%[dh]}
   local unit=${interval: -1}
 
-  # 校验格式（数字+单位，单位只能是d或h）
-  if ! [[ $num =~ ^[0-9]+$ ]] || [[ ! $unit =~ ^[dh]$ ]]; then
+  # 校验格式（数字+单位，单位只能是d或h，数字必须为正整数）
+  if ! [[ $num =~ ^[1-9][0-9]*$ ]] || [[ ! $unit =~ ^[dh]$ ]]; then
     echo "警告：无效的 UPDATE_INTERVAL 格式 '$interval'，使用默认值 $default_interval"
     interval=$default_interval
     num=${interval%[dh]}
     unit=${interval: -1}
   fi
 
-  # 转换为 cron 表达式（只支持天和小时级别的定时）
+  # 转换为 cron 表达式（确保生成有效表达式）
   case $unit in
-    d)  # 每天/每n天：0点执行
+    d)  # 每天/每n天：0点执行（n≥1）
       if [ $num -eq 1 ]; then
         cron_expr="0 0 * * *"  # 每天0点
       else
-        cron_expr="0 0 */$num * *"  # 每n天0点
+        cron_expr="0 0 */$num * *"  # 每n天0点（n≥2）
       fi
       ;;
-    h)  # 每n小时：整点执行
-      cron_expr="0 */$num * * *"
+    h)  # 每n小时：整点执行（n≥1）
+      cron_expr="0 */$num * * *"  # 每n小时（n≥1，cron支持*/1=每小时）
       ;;
   esac
 
