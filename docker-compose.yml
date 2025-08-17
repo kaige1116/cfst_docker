@@ -11,7 +11,7 @@ services:
       - CF_DOMAIN=your_domain.com
       
       # 测速配置
-      - CFST_PARAMS=-f /app/ip.txt -p 443 -t 10 -tl 200 #ip.txt可更换为ipv6.txt,端口443
+      - CFST_PARAMS=-f ip.txt -p 443 -t 10 -tl 200 #ip.txt可更换为ipv6.txt,端口443
       - IP_COUNT=6  # 保留的IP数量
       
       # 定时任务配置 (时间表示d/h)
