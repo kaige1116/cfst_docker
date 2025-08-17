@@ -46,7 +46,9 @@ CRON_EXPR=$(interval_to_cron "$UPDATE_INTERVAL")
 echo "生成的定时任务表达式：$CRON_EXPR"
 
 # 2. 生成 crontab 配置（执行 update_dns.sh 并输出日志）
-echo "$CRON_EXPR /app/update_dns.sh >> /var/log/cfst_update.log 2>&1" > /etc/crontabs/root
+if ! grep -q "/app/update_dns.sh" /etc/crontabs/root; then
+  echo "$CRON_EXPR /app/update_dns.sh >> /var/log/cfst_update.log 2>&1" >> /etc/crontabs/root
+fi
 
 # 3. 首次启动执行一次更新（失败不影响后续）
 echo "首次执行更新任务..."
