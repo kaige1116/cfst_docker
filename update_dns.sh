@@ -44,7 +44,7 @@ run_speed_test() {
   log "开始执行Cloudflare IP测速..."
   # 从环境变量获取测速参数（默认使用ip.txt）
   local cfst_params="${CFST_PARAMS:--f ip.txt -p 443 -t 10}"
-  ./cfst $cfst_params -o "$RESULT_FILE"
+  /app/cfst $cfst_params -o "$RESULT_FILE"
   
   # 检查测速是否成功（结果文件存在且非空）
   if [ $? -ne 0 ] || [ ! -s "$RESULT_FILE" ]; then
